@@ -474,7 +474,7 @@ print(xtable(tab), type = "html", include.rownames = FALSE)
 ```
 
 <!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
-<!-- Mon Jul 21 02:27:04 2014 -->
+<!-- Mon Jul 21 03:16:44 2014 -->
 <TABLE border=1>
 <TR> <TH> isStepsMissing </TH> <TH> N </TH>  </TR>
   <TR> <TD> TRUE </TD> <TD align="right"> 2304 </TD> </TR>
@@ -491,7 +491,7 @@ dt <- kNN(dt)
 ```
 
 ```
-## Time difference of -9.13 secs
+## Time difference of -9.136 secs
 ```
 
 The `kNN` function returns a dataset with all `NA`s replaced.
@@ -507,7 +507,7 @@ print(xtable(tab),  type = "html", include.rownames = FALSE)
 ```
 
 <!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
-<!-- Mon Jul 21 02:27:13 2014 -->
+<!-- Mon Jul 21 03:16:53 2014 -->
 <TABLE border=1>
 <TR> <TH> isMissing </TH> <TH> N </TH>  </TR>
   <TR> <TD> FALSE </TD> <TD align="right"> 17568 </TD> </TR>
@@ -624,7 +624,7 @@ print(xtable(tab), type="html", include.rownames=FALSE)
 ```
 
 <!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
-<!-- Mon Jul 21 02:27:14 2014 -->
+<!-- Mon Jul 21 03:16:54 2014 -->
 <TABLE border=1>
 <TR> <TH> status </TH> <TH> n </TH> <TH> nValid </TH> <TH> mean </TH> <TH> median </TH>  </TR>
   <TR> <TD> After imputation </TD> <TD align="right">  61 </TD> <TD align="right">  61 </TD> <TD align="right"> 9752.39 </TD> <TD align="right"> 10395.00 </TD> </TR>

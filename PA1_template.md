@@ -87,9 +87,40 @@ Peer assessment 1 assignment for Coursera course [Reproducible Research](Reprodu
 First Load Packages.
 
 
-```{r}
+
+```r
 packages <- c("data.table", "ggplot2", "xtable", "VIM", "lattice")
 sapply(packages, require, character.only=TRUE, quietly=TRUE)
+```
+
+```
+## Warning: package 'data.table' was built under R version 3.1.1
+## Warning: package 'ggplot2' was built under R version 3.1.1
+## Warning: package 'VIM' was built under R version 3.1.1
+## Warning: package 'colorspace' was built under R version 3.1.1
+```
+
+```
+## VIM is ready to use. 
+##  Since version 4.0.0 the GUI is in its own package VIMGUI.
+## 
+##           Please use the package to use the new (and old) GUI.
+## 
+## 
+## Attaching package: 'VIM'
+## 
+## The following object is masked from 'package:datasets':
+## 
+##     sleep
+```
+
+```
+## Warning: package 'lattice' was built under R version 3.1.1
+```
+
+```
+## data.table    ggplot2     xtable        VIM    lattice 
+##       TRUE       TRUE       TRUE       TRUE       TRUE
 ```
 
 > ### Loading and preprocessing the data
@@ -103,14 +134,16 @@ sapply(packages, require, character.only=TRUE, quietly=TRUE)
 Read the CSV file.
 Convert the data frame to a data table using the [`data.table`](http://cran.r-project.org/web/packages/data.table/index.html) package.
 
-```{r}
+
+```r
 dt <- read.csv(file.path(getwd(), "activity.csv"))
 dt <- data.table(dt)
 ```
 
 Check the number of rows in the dataset is the expected value of 17,568.
 
-```{r}
+
+```r
 check <- nrow(dt) == 17568
 if (check == FALSE) stop("The number of rows in the dataset is not 17,568.")
 ```
@@ -118,28 +151,78 @@ if (check == FALSE) stop("The number of rows in the dataset is not 17,568.")
 Convert the `date` variable to a date class.
 And look at the structure of the dataset.
 
-```{r}
+
+```r
 dt <- dt[, date := as.Date(date)]
 setkey(dt, date, interval)
 str(dt)
 ```
 
+```
+## Classes 'data.table' and 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  - attr(*, ".internal.selfref")=<externalptr> 
+##  - attr(*, "sorted")= chr  "date" "interval"
+```
+
 The variable 'date' has been read as a Factor. Going to check it converted  into Date class:
 
-```{r}
+
+```r
 class(dt$date)
+```
+
+```
+## [1] "Date"
 ```
 Type of Data
 
-```{r}
+
+```r
 dt
+```
+
+```
+##        steps       date interval
+##     1:    NA 2012-10-01        0
+##     2:    NA 2012-10-01        5
+##     3:    NA 2012-10-01       10
+##     4:    NA 2012-10-01       15
+##     5:    NA 2012-10-01       20
+##    ---                          
+## 17564:    NA 2012-11-30     2335
+## 17565:    NA 2012-11-30     2340
+## 17566:    NA 2012-11-30     2345
+## 17567:    NA 2012-11-30     2350
+## 17568:    NA 2012-11-30     2355
+```
+
+```r
 summary(dt)
+```
+
+```
+##      steps            date               interval   
+##  Min.   :  0.0   Min.   :2012-10-01   Min.   :   0  
+##  1st Qu.:  0.0   1st Qu.:2012-10-16   1st Qu.: 589  
+##  Median :  0.0   Median :2012-10-31   Median :1178  
+##  Mean   : 37.4   Mean   :2012-10-31   Mean   :1178  
+##  3rd Qu.: 12.0   3rd Qu.:2012-11-15   3rd Qu.:1766  
+##  Max.   :806.0   Max.   :2012-11-30   Max.   :2355  
+##  NA's   :2304
 ```
 
 How many missing value are there in the dataset?
 
-```{r}
+
+```r
 sum(is.na(dt$steps))
+```
+
+```
+## [1] 2304
 ```
 
 > ### What is mean total number of steps taken per day?
@@ -153,63 +236,121 @@ sum(is.na(dt$steps))
 
 Now, create a new dataset in which removing all missing values:
 
-```{r}
+
+```r
 dt_NA <- dt[!is.na(dt$steps), ]
 ```
        
 And then see file has been removed missing value.      
       
-```{r}
+
+```r
 head(dt_NA)        
 ```
 
-```{r}
+```
+##    steps       date interval
+## 1:     0 2012-10-02        0
+## 2:     0 2012-10-02        5
+## 3:     0 2012-10-02       10
+## 4:     0 2012-10-02       15
+## 5:     0 2012-10-02       20
+## 6:     0 2012-10-02       25
+```
+
+
+```r
 head(dt)
+```
+
+```
+##    steps       date interval
+## 1:    NA 2012-10-01        0
+## 2:    NA 2012-10-01        5
+## 3:    NA 2012-10-01       10
+## 4:    NA 2012-10-01       15
+## 5:    NA 2012-10-01       20
+## 6:    NA 2012-10-01       25
 ```
 Now we calculate the mean of steps per day, ignoring missing values, so I'm going to take "dt_NA" dataset:
 
 - 1st, I split the dataset into diferent days:
 
-```{r}
+
+```r
 splitDataByDate <- split(dt_NA$steps, dt_NA$date)
 ```
 
 - 2nd, I create a vector with all days in dataset:
 
-```{r}
+
+```r
 allDays <- as.Date(sort(unique(dt_NA$date)), format = "%Y-%m-%d")
 ```
 
 - And now I'm calculate sum, mean and median of all step splitted by day:
 
-```{r}
+
+```r
 sumStepByDate <- as.data.frame(sapply(splitDataByDate, sum))
 names(sumStepByDate) <- c("Steps")
 mean(sumStepByDate$Steps)
 ```
 
-```{r}
+```
+## [1] 10766
+```
+
+
+```r
 median(sumStepByDate$Steps)
+```
+
+```
+## [1] 10765
 ```
 
 Now generate a histogram with the frecuency of total sum of steps by day:
 
-```{r, fig.align='center'}
+
+```r
 hist(sumStepByDate$Steps, main="Total steps by day frecuency", xlab="Number of steps by day", ylab="Number of days", col="red", breaks = nrow(sumStepByDate))
+```
+
+<img src="figure/unnamed-chunk-15.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" />
+
+```r
 dev.off()
+```
+
+```
+## null device 
+##           1
 ```
 
 Aggregate the number of steps taken each day.Days with missing values (`NA`) will have `NA` when aggregated.
 
 
-```{r}
+
+```r
 dtDaily <- dt[, list(sumSteps = sum(steps)), date]
 head(dtDaily)
 ```
 
+```
+##          date sumSteps
+## 1: 2012-10-01       NA
+## 2: 2012-10-02      126
+## 3: 2012-10-03    11352
+## 4: 2012-10-04    12116
+## 5: 2012-10-05    13294
+## 6: 2012-10-06    15420
+```
+
 Again plot a histogram of the total number of steps taken each day, by **ggplot() function**.
 
-```{r, fig.align='center'}
+
+```r
 p <-
 ggplot(dtDaily, aes(x = sumSteps)) + geom_histogram(alpha = 1/2, binwidth = 500, color="black",fill="navyblue")
 p.labs <- p + labs(title = "Total steps by day frequency", x = "Number of steps by day", y = "Number of days") + theme_bw() 
@@ -219,16 +360,27 @@ black.bold.plain.10.5.text <- element_text(face = "plain", color = "black", size
 p.labs + theme(title = black.bold.plain.14.text, axis.title = black.text) + theme(axis.text = black.bold.plain.10.5.text)
 ```
 
+<img src="figure/unnamed-chunk-17.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" />
+
 Calculate mean and median total number of steps taken per day, **before imputing**.
 
-```{r, readdata, echo=T, results="asis", cache=TRUE}
+
+```r
 tab <- dtDaily[, list(n = .N, nValid = sum(!is.na(sumSteps)), mean = mean(sumSteps, na.rm=TRUE), median = median(sumSteps, na.rm=TRUE))]
 print(xtable(tab), type="html", include.rownames=FALSE)
 ```
 
+<!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
+<!-- Sat Jul 19 13:17:49 2014 -->
+<TABLE border=1>
+<TR> <TH> n </TH> <TH> nValid </TH> <TH> mean </TH> <TH> median </TH>  </TR>
+  <TR> <TD align="right">  61 </TD> <TD align="right">  53 </TD> <TD align="right"> 10766.19 </TD> <TD align="right"> 10765 </TD> </TR>
+   </TABLE>
+
 Save the data table `dtDaily` before imputation to be used later.
 
-```{r}
+
+```r
 dtDaily <- dtDaily[, status := "Before imputation"]
 dtDailyBeforeImputation <- dtDaily
 ```
@@ -241,13 +393,15 @@ dtDailyBeforeImputation <- dtDaily
 
 Aggregate the average number of steps taken by 5-minute interval.
 
-```{r}
+
+```r
 dtIntervals <- dt[, list(meanSteps = mean(steps, na.rm=TRUE)), interval]
 ```
 
 Plot a time series of the 5-minute interval and the average number of steps taken across all days.
 
-```{r steps_per_interval, echo=TRUE,fig.align='center'}
+
+```r
 dt$interval <- factor(dt$interval)
 
 calc_steps <- function(dt) {
@@ -275,20 +429,24 @@ plot_activity_pattern <- function(steps_per_interval, max_step_interval) {
 plot_activity_pattern(steps_per_interval, max_step_interval)
 ```
 
+<img src="figure/steps_per_interval.png" title="plot of chunk steps_per_interval" alt="plot of chunk steps_per_interval" style="display: block; margin: auto;" />
 
-```{r}
+
+
+```r
 splitDataByInterval <- split(dt_NA$steps, dt_NA$interval)
 meanStepByInterval <- as.data.frame(sapply(splitDataByInterval, mean))
 names(meanStepByInterval) <- c("Steps")
 max1 <- max(meanStepByInterval$Steps)
 ```
 
-```{r}
+
+```r
 totPerInterval<-sapply(split(dt$steps,dt$interval),sum,na.rm=T)
 indMax <- which.max(totPerInterval)
 ```
 
-The 5 minute interval that on average across all the days in the dataset  contains the maximum number of steps is the **`r max_step_interval`**, the maximun is **`r max1`**  and it contain `r totPerInterval[indMax]` steps.
+The 5 minute interval that on average across all the days in the dataset  contains the maximum number of steps is the **835**, the maximun is **206.1698**  and it contain 10927 steps.
 
 > ### Imputing missing values
 > 
@@ -308,18 +466,32 @@ The 5 minute interval that on average across all the days in the dataset  contai
 
 And non missing values are...
 
-```{r, results='asis'}
+
+```r
 dt <- dt[,`:=`(isStepsMissing, is.na(steps))]
 tab <- dt[, .N, isStepsMissing]
 print(xtable(tab), type = "html", include.rownames = FALSE)
 ```
 
+<!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
+<!-- Mon Jul 21 02:27:04 2014 -->
+<TABLE border=1>
+<TR> <TH> isStepsMissing </TH> <TH> N </TH>  </TR>
+  <TR> <TD> TRUE </TD> <TD align="right"> 2304 </TD> </TR>
+  <TR> <TD> FALSE </TD> <TD align="right"> 15264 </TD> </TR>
+   </TABLE>
+
 Use the [VIM](http://cran.r-project.org/web/packages/VIM/index.html) package to impute missing values of the `steps` variable.
 Use k-Nearest Neighbour Imputation.
 
 
-```{r}
+
+```r
 dt <- kNN(dt)
+```
+
+```
+## Time difference of -9.13 secs
 ```
 
 The `kNN` function returns a dataset with all `NA`s replaced.
@@ -328,21 +500,62 @@ Verify that missingness is complete for an entire day.
 Show all days with at least 1 missing value. Calculate the proportion of records with missing values for each such day.All missing data fill.
 
 
-```{r,results='asis'}
+
+```r
 tab <- dt[, .N, list(isMissing = is.na(steps))]
 print(xtable(tab),  type = "html", include.rownames = FALSE)
 ```
 
+<!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
+<!-- Mon Jul 21 02:27:13 2014 -->
+<TABLE border=1>
+<TR> <TH> isMissing </TH> <TH> N </TH>  </TR>
+  <TR> <TD> FALSE </TD> <TD align="right"> 17568 </TD> </TR>
+   </TABLE>
+
 Above is a new value which now is a total value after filling the missing value.dt
 
-```{r}
+
+```r
 dtMissingness <- dt[, list(countMissing = sum(isStepsMissing), countRecords = .N, 
     propMissing = sum(isStepsMissing/.N)), date]
 dtMissingness[countMissing > 0]
 ```
 
-```{r, results='summary'}
+```
+##          date countMissing countRecords propMissing
+## 1: 2012-10-01          288          288           1
+## 2: 2012-10-08          288          288           1
+## 3: 2012-11-01          288          288           1
+## 4: 2012-11-04          288          288           1
+## 5: 2012-11-09          288          288           1
+## 6: 2012-11-10          288          288           1
+## 7: 2012-11-14          288          288           1
+## 8: 2012-11-30          288          288           1
+```
+
+
+```r
 summary (dt)
+```
+
+```
+##      steps            date               interval     isStepsMissing 
+##  Min.   :  0.0   Min.   :2012-10-01   0      :   61   Mode :logical  
+##  1st Qu.:  0.0   1st Qu.:2012-10-16   5      :   61   FALSE:15264    
+##  Median :  0.0   Median :2012-10-31   10     :   61   TRUE :2304     
+##  Mean   : 33.9   Mean   :2012-10-31   15     :   61   NA's :0        
+##  3rd Qu.:  9.0   3rd Qu.:2012-11-15   20     :   61                  
+##  Max.   :806.0   Max.   :2012-11-30   25     :   61                  
+##                                       (Other):17202                  
+##  steps_imp      
+##  Mode :logical  
+##  FALSE:15264    
+##  TRUE :2304     
+##  NA's :0        
+##                 
+##                 
+## 
 ```
 
 #### After imputation of missing values
@@ -350,19 +563,47 @@ summary (dt)
 Aggregate the number of steps taken each day.
 
 
-```{r}
+
+```r
 dtDaily <- dt[, list(sumSteps = sum(steps), isImputed = sum(steps_imp) > 0), date]
 head(dtDaily)
 ```
 
-```{r}
+```
+##          date sumSteps isImputed
+## 1: 2012-10-01     3036      TRUE
+## 2: 2012-10-02      126     FALSE
+## 3: 2012-10-03    11352     FALSE
+## 4: 2012-10-04    12116     FALSE
+## 5: 2012-10-05    13294     FALSE
+## 6: 2012-10-06    15420     FALSE
+```
+
+
+```r
 dt
+```
+
+```
+##        steps       date interval isStepsMissing steps_imp
+##     1:     0 2012-10-01        0           TRUE      TRUE
+##     2:     0 2012-10-01        5           TRUE      TRUE
+##     3:     0 2012-10-01       10           TRUE      TRUE
+##     4:     0 2012-10-01       15           TRUE      TRUE
+##     5:     0 2012-10-01       20           TRUE      TRUE
+##    ---                                                   
+## 17564:     0 2012-11-30     2335           TRUE      TRUE
+## 17565:     0 2012-11-30     2340           TRUE      TRUE
+## 17566:     0 2012-11-30     2345           TRUE      TRUE
+## 17567:     0 2012-11-30     2350           TRUE      TRUE
+## 17568:     0 2012-11-30     2355           TRUE      TRUE
 ```
 
 Plot a histogram of the total number of steps taken each day **after imputing** and compare with the histogram **before imputing**.
 Need to add an `isImputed` column to `dtDailyBeforeImputation` to make `rbind` work.
 
-```{r histogramStepsTakenEachDayAfterImputation, fig.align='center'}
+
+```r
 dtDaily <- dtDaily[, status := "After imputation"]
 dtDailyBeforeImputation <- dtDailyBeforeImputation[, isImputed := FALSE]
 dtDaily <- rbind(dtDaily, dtDailyBeforeImputation, use.names=TRUE)
@@ -372,12 +613,23 @@ ggplot(dtDaily, aes(x=sumSteps, fill=isImputed)) +
   theme(legend.position="bottom") + theme_minimal() + labs(x="Number of steps by day", y="Number of days")
 ```
 
+<img src="figure/histogramStepsTakenEachDayAfterImputation.png" title="plot of chunk histogramStepsTakenEachDayAfterImputation" alt="plot of chunk histogramStepsTakenEachDayAfterImputation" style="display: block; margin: auto;" />
+
 Calculate the mean and median total number of steps taken per day **after imputing**.
 
-```{r, results='asis'}
+
+```r
 tab <- dtDaily[, list(n = .N, nValid = sum(!is.na(sumSteps)), mean = mean(sumSteps, na.rm=TRUE), median = median(sumSteps, na.rm=TRUE)), status]
 print(xtable(tab), type="html", include.rownames=FALSE)
 ```
+
+<!-- html table generated in R 3.1.0 by xtable 1.7-3 package -->
+<!-- Mon Jul 21 02:27:14 2014 -->
+<TABLE border=1>
+<TR> <TH> status </TH> <TH> n </TH> <TH> nValid </TH> <TH> mean </TH> <TH> median </TH>  </TR>
+  <TR> <TD> After imputation </TD> <TD align="right">  61 </TD> <TD align="right">  61 </TD> <TD align="right"> 9752.39 </TD> <TD align="right"> 10395.00 </TD> </TR>
+  <TR> <TD> Before imputation </TD> <TD align="right">  61 </TD> <TD align="right">  53 </TD> <TD align="right"> 10766.19 </TD> <TD align="right"> 10765.00 </TD> </TR>
+   </TABLE>
 
 The median of the imputed values is the same as the original values where missing values were not imputed.
 However, the mean of the imputed values is **less than** the original values.
@@ -405,7 +657,8 @@ Verify that `IntervalWD` and `IntervalWE` are factor class variables.
 
 Overlay the time series on a single plot instead of using a panel plot.
 
-```{r, fig.align='center'}
+
+```r
 dt$Days <- weekdays(as.Date(as.character(dt$date)))
 d <- dt$Days == "Saturday" | dt$Days == "Sunday"
 dt$Days[d] = "Weekend"
@@ -426,10 +679,13 @@ lines(dfWE$IntervalWE, dfWE$avgWE, col = "red")
 legend("topright", c("Weekday", "Weekend"), col = c("black", "red"), lty = 1)
 ```
 
+<img src="figure/unnamed-chunk-30.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" style="display: block; margin: auto;" />
+
 
 Plot two time series (one for weekdays and the other for weekends) of the 5-minute intervals and average number of steps taken (imputed values).
 
-```{r, fig.align='center'}
+
+```r
 dfWD$wDays <- rep("Weekday", nrow(dfWD))
 dfWE$wDays <- rep("Weekend", nrow(dfWD))
 # Rename column names to match
@@ -443,8 +699,9 @@ df$wDays <- factor(df$wDays)
 # Use lattice library to plot
 library(lattice)
 xyplot(Steps ~ Interval | wDays, data = df, type = "l", layout = c(1, 2), ylab = "Average Number of Steps")
-
 ```
+
+<img src="figure/unnamed-chunk-31.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" style="display: block; margin: auto;" />
 
 > ## Submitting the Assignment
 > 
